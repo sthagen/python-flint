@@ -74,6 +74,8 @@ if [ $USE_GMP = "gmp" ]; then
   curl -O https://gmplib.org/download/gmp/gmp-$GMPVER.tar.xz
   tar xf gmp-$GMPVER.tar.xz
   cd gmp-$GMPVER
+    # Show the output of configfsf.guess
+    ./configfsf.guess
     ./configure --prefix=$PREFIX\
       --enable-fat\
       --enable-shared=yes\
@@ -130,7 +132,7 @@ fi
 #                                                                           #
 # ------------------------------------------------------------------------- #
 
-curl -O https://www.mpfr.org/mpfr-current/mpfr-$MPFRVER.tar.gz
+curl -O https://ftp.gnu.org/gnu/mpfr/mpfr-$MPFRVER.tar.gz
 tar xf mpfr-$MPFRVER.tar.gz
 cd mpfr-$MPFRVER
   ./configure --prefix=$PREFIX\
