@@ -177,6 +177,12 @@ cd arb-$ARBVER
     --disable-static
   make -j3
   make install
+  #
+  # Set PATH so that DLLs are picked up on Windows.
+  #
+  PATH=$PATH:$PREFIX/lib:$PREFIX/bin \
+  ARB_TEST_MULTIPLIER=0.1            \
+  make check
 cd ..
 
 # ------------------------------------------------------------------------- #
