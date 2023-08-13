@@ -91,6 +91,17 @@ cdef class fmpz(flint_scalar):
                         return
                     raise TypeError("cannot create fmpz from type %s" % type(val))
 
+    @property
+    def numerator(self):
+        return self
+
+    @property
+    def denominator(self):
+        return fmpz(1)
+
+    def __reduce__(self):
+        return (fmpz, (int(self),))
+
     # XXX: improve!
     def __int__(self):
         return fmpz_get_intlong(self.val)
@@ -100,6 +111,24 @@ cdef class fmpz(flint_scalar):
 
     def __index__(self):
         return fmpz_get_intlong(self.val)
+
+    def __float__(self):
+        return float(fmpz_get_intlong(self.val))
+
+    def __floor__(self):
+        return self
+
+    def __ceil__(self):
+        return self
+
+    def __trunc__(self):
+        return self
+
+    def __round__(self, ndigits=None):
+        if ndigits is None:
+            return self
+        else:
+            return fmpz(round(int(self), ndigits))
 
     def __richcmp__(s, t, int op):
         cdef bint res = 0
@@ -174,57 +203,73 @@ cdef class fmpz(flint_scalar):
         return -self
 
     def __add__(s, t):
-        cdef fmpz_struct sval[1]
         cdef fmpz_struct tval[1]
-        cdef int stype = FMPZ_UNKNOWN
         cdef int ttype = FMPZ_UNKNOWN
         u = NotImplemented
-        stype = fmpz_set_any_ref(sval, s)
-        if stype != FMPZ_UNKNOWN:
-            ttype = fmpz_set_any_ref(tval, t)
-            if ttype != FMPZ_UNKNOWN:
-                u = fmpz.__new__(fmpz)
-                fmpz_add((<fmpz>u).val, sval, tval)
-        if stype == FMPZ_TMP: fmpz_clear(sval)
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            u = fmpz.__new__(fmpz)
+            fmpz_add((<fmpz>u).val, (<fmpz>s).val, tval)
+        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        return u
+
+    def __radd__(s, t):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        u = NotImplemented
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            u = fmpz.__new__(fmpz)
+            fmpz_add((<fmpz>u).val, tval, (<fmpz>s).val)
         if ttype == FMPZ_TMP: fmpz_clear(tval)
         return u
 
     def __sub__(s, t):
-        cdef fmpz_struct sval[1]
         cdef fmpz_struct tval[1]
-        cdef int stype = FMPZ_UNKNOWN
         cdef int ttype = FMPZ_UNKNOWN
         u = NotImplemented
-        stype = fmpz_set_any_ref(sval, s)
-        if stype != FMPZ_UNKNOWN:
-            ttype = fmpz_set_any_ref(tval, t)
-            if ttype != FMPZ_UNKNOWN:
-                u = fmpz.__new__(fmpz)
-                fmpz_sub((<fmpz>u).val, sval, tval)
-        if stype == FMPZ_TMP: fmpz_clear(sval)
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            u = fmpz.__new__(fmpz)
+            fmpz_sub((<fmpz>u).val, (<fmpz>s).val, tval)
+        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        return u
+
+    def __rsub__(s, t):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        u = NotImplemented
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            u = fmpz.__new__(fmpz)
+            fmpz_sub((<fmpz>u).val, tval, (<fmpz>s).val)
         if ttype == FMPZ_TMP: fmpz_clear(tval)
         return u
 
     def __mul__(s, t):
-        cdef fmpz_struct sval[1]
         cdef fmpz_struct tval[1]
-        cdef int stype = FMPZ_UNKNOWN
         cdef int ttype = FMPZ_UNKNOWN
         u = NotImplemented
-        stype = fmpz_set_any_ref(sval, s)
-        if stype != FMPZ_UNKNOWN:
-            ttype = fmpz_set_any_ref(tval, t)
-            if ttype != FMPZ_UNKNOWN:
-                u = fmpz.__new__(fmpz)
-                fmpz_mul((<fmpz>u).val, sval, tval)
-        if stype == FMPZ_TMP: fmpz_clear(sval)
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            u = fmpz.__new__(fmpz)
+            fmpz_mul((<fmpz>u).val, (<fmpz>s).val, tval)
+        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        return u
+
+    def __rmul__(s, t):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        u = NotImplemented
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            u = fmpz.__new__(fmpz)
+            fmpz_mul((<fmpz>u).val, tval, (<fmpz>s).val)
         if ttype == FMPZ_TMP: fmpz_clear(tval)
         return u
 
     def __floordiv__(s, t):
-        cdef fmpz_struct sval[1]
         cdef fmpz_struct tval[1]
-        cdef int stype = FMPZ_UNKNOWN
         cdef int ttype = FMPZ_UNKNOWN
         u = NotImplemented
         ttype = fmpz_set_any_ref(tval, t)
@@ -233,18 +278,28 @@ cdef class fmpz(flint_scalar):
                 if ttype == FMPZ_TMP:
                     fmpz_clear(tval)
                 raise ZeroDivisionError("fmpz division by zero")
-            stype = fmpz_set_any_ref(sval, s)
-            if stype != FMPZ_UNKNOWN:
-                u = fmpz.__new__(fmpz)
-                fmpz_fdiv_q((<fmpz>u).val, sval, tval)
-        if stype == FMPZ_TMP: fmpz_clear(sval)
+            u = fmpz.__new__(fmpz)
+            fmpz_fdiv_q((<fmpz>u).val, (<fmpz>s).val, tval)
+        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        return u
+
+    def __rfloordiv__(s, t):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        u = NotImplemented
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            if fmpz_is_zero((<fmpz>s).val):
+                if ttype == FMPZ_TMP:
+                    fmpz_clear(tval)
+                raise ZeroDivisionError("fmpz division by zero")
+            u = fmpz.__new__(fmpz)
+            fmpz_fdiv_q((<fmpz>u).val, tval, (<fmpz>s).val)
         if ttype == FMPZ_TMP: fmpz_clear(tval)
         return u
 
     def __mod__(s, t):
-        cdef fmpz_struct sval[1]
         cdef fmpz_struct tval[1]
-        cdef int stype = FMPZ_UNKNOWN
         cdef int ttype = FMPZ_UNKNOWN
         u = NotImplemented
         ttype = fmpz_set_any_ref(tval, t)
@@ -253,18 +308,28 @@ cdef class fmpz(flint_scalar):
                 if ttype == FMPZ_TMP:
                     fmpz_clear(tval)
                 raise ZeroDivisionError("fmpz division by zero")
-            stype = fmpz_set_any_ref(sval, s)
-            if stype != FMPZ_UNKNOWN:
-                u = fmpz.__new__(fmpz)
-                fmpz_fdiv_r((<fmpz>u).val, sval, tval)
-        if stype == FMPZ_TMP: fmpz_clear(sval)
+            u = fmpz.__new__(fmpz)
+            fmpz_fdiv_r((<fmpz>u).val, (<fmpz>s).val, tval)
+        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        return u
+
+    def __rmod__(s, t):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        u = NotImplemented
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            if fmpz_is_zero((<fmpz>s).val):
+                if ttype == FMPZ_TMP:
+                    fmpz_clear(tval)
+                raise ZeroDivisionError("fmpz division by zero")
+            u = fmpz.__new__(fmpz)
+            fmpz_fdiv_r((<fmpz>u).val, tval, (<fmpz>s).val)
         if ttype == FMPZ_TMP: fmpz_clear(tval)
         return u
 
     def __divmod__(s, t):
-        cdef fmpz_struct sval[1]
         cdef fmpz_struct tval[1]
-        cdef int stype = FMPZ_UNKNOWN
         cdef int ttype = FMPZ_UNKNOWN
         u = NotImplemented
         ttype = fmpz_set_any_ref(tval, t)
@@ -273,29 +338,222 @@ cdef class fmpz(flint_scalar):
                 if ttype == FMPZ_TMP:
                     fmpz_clear(tval)
                 raise ZeroDivisionError("fmpz division by zero")
-            stype = fmpz_set_any_ref(sval, s)
-            if stype != FMPZ_UNKNOWN:
-                u1 = fmpz.__new__(fmpz)
-                u2 = fmpz.__new__(fmpz)
-                fmpz_fdiv_qr((<fmpz>u1).val, (<fmpz>u2).val, sval, tval)
-                u = u1, u2
-        if stype == FMPZ_TMP: fmpz_clear(sval)
+            u1 = fmpz.__new__(fmpz)
+            u2 = fmpz.__new__(fmpz)
+            fmpz_fdiv_qr((<fmpz>u1).val, (<fmpz>u2).val, (<fmpz>s).val, tval)
+            u = u1, u2
+        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        return u
+
+    def __rdivmod__(s, t):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        u = NotImplemented
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype != FMPZ_UNKNOWN:
+            if fmpz_is_zero((<fmpz>s).val):
+                if ttype == FMPZ_TMP:
+                    fmpz_clear(tval)
+                raise ZeroDivisionError("fmpz division by zero")
+            u1 = fmpz.__new__(fmpz)
+            u2 = fmpz.__new__(fmpz)
+            fmpz_fdiv_qr((<fmpz>u1).val, (<fmpz>u2).val, tval, (<fmpz>s).val)
+            u = u1, u2
         if ttype == FMPZ_TMP: fmpz_clear(tval)
         return u
 
     def __pow__(s, t, m):
-        cdef fmpz_struct sval[1]
-        cdef int stype = FMPZ_UNKNOWN
-        cdef ulong exp
+        cdef fmpz_struct tval[1]
+        cdef fmpz_struct mval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        cdef int mtype = FMPZ_UNKNOWN
+        cdef int success
         u = NotImplemented
-        if m is not None:
-            raise NotImplementedError("modular exponentiation")
-        stype = fmpz_set_any_ref(sval, s)
-        if stype != FMPZ_UNKNOWN:
-            c = t
+        ttype = fmpz_set_any_ref(tval, t)
+        if ttype == FMPZ_UNKNOWN:
+            return NotImplemented
+
+        if m is None:
+            # fmpz_pow_fmpz throws if x is negative
+            if fmpz_sgn(tval) == -1:
+                if ttype == FMPZ_TMP: fmpz_clear(tval)
+                raise ValueError("negative exponent")
+
             u = fmpz.__new__(fmpz)
-            fmpz_pow_ui((<fmpz>u).val, sval, c)
-        if stype == FMPZ_TMP: fmpz_clear(sval)
+            success = fmpz_pow_fmpz((<fmpz>u).val, (<fmpz>s).val, tval)
+
+            if not success:
+                if ttype == FMPZ_TMP: fmpz_clear(tval)
+                raise OverflowError("fmpz_pow_fmpz: exponent too large")
+        else:
+            # Modular exponentiation
+            mtype = fmpz_set_any_ref(mval, m)
+            if mtype != FMPZ_UNKNOWN:
+
+                if fmpz_is_zero(mval):
+                    if ttype == FMPZ_TMP: fmpz_clear(tval)
+                    if mtype == FMPZ_TMP: fmpz_clear(mval)
+                    raise ValueError("pow(): modulus cannot be zero")
+
+                # The Flint docs say that fmpz_powm will throw if m is zero
+                # but it also throws if m is negative. Python generally allows
+                # e.g. pow(2, 2, -3) == (2^2) % (-3) == -2. We could implement
+                # that here as well but it is not clear how useful it is.
+                if fmpz_sgn(mval) == -1:
+                    if ttype == FMPZ_TMP: fmpz_clear(tval)
+                    if mtype == FMPZ_TMP: fmpz_clear(mval)
+                    raise ValueError("pow(): negative modulua not supported")
+
+                u = fmpz.__new__(fmpz)
+                fmpz_powm((<fmpz>u).val, (<fmpz>s).val, tval, mval)
+
+        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if mtype == FMPZ_TMP: fmpz_clear(mval)
+        return u
+
+    def __rpow__(s, t, m):
+        t = any_as_fmpz(t)
+        if t is NotImplemented:
+            return t
+        return t.__pow__(s, m)
+
+    def __lshift__(self, other):
+        if typecheck(other, fmpz):
+            other = int(other)
+        if typecheck(other, int):
+            if other < 0:
+                raise ValueError("negative shift count")
+            u = fmpz.__new__(fmpz)
+            fmpz_mul_2exp((<fmpz>u).val, self.val, other)
+            return u
+        else:
+            return NotImplemented
+
+    def __rlshift__(self, other):
+        iself = int(self)
+        if iself < 0:
+            raise ValueError("negative shift count")
+        if typecheck(other, int):
+            u = fmpz.__new__(fmpz)
+            fmpz_mul_2exp((<fmpz>u).val, fmpz(other).val, iself)
+            return u
+        else:
+            return NotImplemented
+
+    def __rshift__(self, other):
+        if typecheck(other, fmpz):
+            other = int(other)
+        if typecheck(other, int):
+            if other < 0:
+                raise ValueError("negative shift count")
+            u = fmpz.__new__(fmpz)
+            fmpz_fdiv_q_2exp((<fmpz>u).val, self.val, other)
+            return u
+        else:
+            return NotImplemented
+
+    def __rrshift__(self, other):
+        iself = int(self)
+        if iself < 0:
+            raise ValueError("negative shift count")
+        if typecheck(other, int):
+            u = fmpz.__new__(fmpz)
+            fmpz_fdiv_q_2exp((<fmpz>u).val, fmpz(other).val, iself)
+            return u
+        else:
+            return NotImplemented
+
+    def __and__(self, other):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        ttype = fmpz_set_any_ref(tval, other)
+        if ttype == FMPZ_UNKNOWN:
+            return NotImplemented
+        u = fmpz.__new__(fmpz)
+        fmpz_and((<fmpz>u).val, self.val, tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
+        return u
+
+    def __rand__(self, other):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        ttype = fmpz_set_any_ref(tval, other)
+        if ttype == FMPZ_UNKNOWN:
+            return NotImplemented
+        u = fmpz.__new__(fmpz)
+        fmpz_and((<fmpz>u).val, tval, self.val)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
+        return u
+
+    # This is the correct code when fmpz_or is fixed (in flint 3.0.0)
+    #
+    #def __or__(self, other):
+    #    cdef fmpz_struct tval[1]
+    #    cdef int ttype = FMPZ_UNKNOWN
+    #    ttype = fmpz_set_any_ref(tval, other)
+    #    if ttype == FMPZ_UNKNOWN:
+    #        return NotImplemented
+    #    u = fmpz.__new__(fmpz)
+    #    fmpz_or((<fmpz>u).val, self.val, tval)
+    #    if ttype == FMPZ_TMP:
+    #        fmpz_clear(tval)
+    #    return u
+    #
+    #def __ror__(self, other):
+    #    cdef fmpz_struct tval[1]
+    #    cdef int ttype = FMPZ_UNKNOWN
+    #    ttype = fmpz_set_any_ref(tval, other)
+    #    if ttype == FMPZ_UNKNOWN:
+    #        return NotImplemented
+    #    u = fmpz.__new__(fmpz)
+    #    fmpz_or((<fmpz>u).val, tval, self.val)
+    #    if ttype == FMPZ_TMP:
+    #        fmpz_clear(tval)
+    #    return u
+
+    def __or__(self, other):
+        if typecheck(other, fmpz):
+            other = int(other)
+        if typecheck(other, int):
+            return fmpz(int(self) | other)
+        else:
+            return NotImplemented
+
+    def __ror__(self, other):
+        if typecheck(other, int):
+            return fmpz(other | int(self))
+        else:
+            return NotImplemented
+
+    def __xor__(self, other):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        ttype = fmpz_set_any_ref(tval, other)
+        if ttype == FMPZ_UNKNOWN:
+            return NotImplemented
+        u = fmpz.__new__(fmpz)
+        fmpz_xor((<fmpz>u).val, self.val, tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
+        return u
+
+    def __rxor__(self, other):
+        cdef fmpz_struct tval[1]
+        cdef int ttype = FMPZ_UNKNOWN
+        ttype = fmpz_set_any_ref(tval, other)
+        if ttype == FMPZ_UNKNOWN:
+            return NotImplemented
+        u = fmpz.__new__(fmpz)
+        fmpz_xor((<fmpz>u).val, tval, self.val)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
+        return u
+
+    def __invert__(self):
+        u = fmpz.__new__(fmpz)
+        fmpz_complement((<fmpz>u).val, self.val)
         return u
 
     def gcd(self, other):
