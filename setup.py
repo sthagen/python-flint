@@ -63,15 +63,25 @@ if os.getenv('PYTHON_FLINT_COVERAGE'):
     compiler_directives['linetrace'] = True
 
 
-ext_modules = [
-    Extension(
-        "flint._flint", ["src/flint/pyflint.pyx"],
-        libraries=libraries,
-        library_dirs=default_lib_dirs,
-        include_dirs=default_include_dirs,
-        define_macros=define_macros,
-        )
+ext_files = [
+    ("flint._flint", ["src/flint/pyflint.pyx"]), # Main Module
+    # Submodules
+    ("flint.flint_base.flint_base", ["src/flint/flint_base/flint_base.pyx"]),
+    ("flint.flint_base.flint_context", ["src/flint/flint_base/flint_context.pyx"]),
+
 ]
+
+ext_options = {
+    "libraries" : libraries,
+    "library_dirs" : default_lib_dirs,
+    "include_dirs" : default_include_dirs,
+    "define_macros" : define_macros,
+}
+
+ext_modules = []
+for mod_name, src_files in ext_files:
+    ext = Extension(mod_name, src_files, **ext_options)
+    ext_modules.append(ext)
 
 for e in ext_modules:
     e.cython_directives = {"embedsignature": True}
@@ -86,9 +96,10 @@ setup(
     description='Bindings for FLINT and Arb',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    version='0.4.1',
-    url='https://github.com/python-flint/python-flint',
+    version='0.4.2',
+    url='https://github.com/flintlib/python-flint',
     author='Fredrik Johansson',
     author_email='fredrik.johansson@gmail.com',
     license='MIT',
     classifiers=['Topic :: Scientific/Engineering :: Mathematics'])
+
