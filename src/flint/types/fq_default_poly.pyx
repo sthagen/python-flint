@@ -15,7 +15,7 @@ from flint.utils.flint_exceptions import DomainError
 
 cdef class fq_default_poly_ctx:
     r"""
-    Context object for creating :class:`~.fq_default_poly` initalised
+    Context object for creating :class:`~.fq_default_poly` initialised
     with a finite field `GF(p^d)`.
 
         >>> fq_default_poly_ctx(163, 3, fq_type="FQ_NMOD")
@@ -36,7 +36,6 @@ cdef class fq_default_poly_ctx:
 
     cdef set_list_as_fq_default_poly(self, fq_default_poly_t poly, val):
         cdef long i, n
-        cdef fmpz_t x
 
         # Get size of list and create a polynomial of length n
         n = PyList_GET_SIZE(val)
@@ -406,7 +405,7 @@ cdef class fq_default_poly(flint_poly):
         return res
 
     def truncate(self, slong n):
-        """
+        r"""
         Notionally truncate the polynomial to have length ``n``. If
         ``n`` is larger than the length of the input, then ``self`` is
         returned. If ``n`` is not positive, then the zero polynomial
@@ -655,7 +654,7 @@ cdef class fq_default_poly(flint_poly):
         return res
 
     def pow_mod(self, e, modulus):
-        """
+        r"""
         Returns ``self`` raised to the power ``e`` modulo ``modulus``:
         :math:`f^e \mod g`/
 
@@ -705,7 +704,6 @@ cdef class fq_default_poly(flint_poly):
             >>> f.divmod(g)
             (21, 106*x^5 + 156*x^4 + 131*x^3 + 43*x^2 + 86*x + 16)
         """
-        cdef fmpz_t f
         cdef fq_default_poly Q, R
 
         other = self.ctx.any_as_fq_default_poly(other)
@@ -733,8 +731,9 @@ cdef class fq_default_poly(flint_poly):
 
     def exact_division(self, other):
         """
-        Attempt to compute the exact quotient of self with other
-        Raises a value error if divison without remainer is not
+        Attempt to compute the exact quotient of self with other.
+
+        Raises a value error if division without remainder is not
         possible.
 
             >>> R = fq_default_poly_ctx(163)
@@ -752,7 +751,7 @@ cdef class fq_default_poly(flint_poly):
             raise TypeError(f"Cannot convert {other} to `fq_default_poly` type.")
 
         if other.is_zero():
-            raise ZeroDivisionError(f"Cannot divide by zero")
+            raise ZeroDivisionError("Cannot divide by zero")
 
         res = self.ctx.new_ctype_poly()
         check = fq_default_poly_divides(
@@ -774,7 +773,7 @@ cdef class fq_default_poly(flint_poly):
             scalar = self.ctx.field.any_as_fq_default(other)
             if scalar is not NotImplemented:
                 if scalar.is_zero():
-                    raise ZeroDivisionError(f"Cannot divide by zero")
+                    raise ZeroDivisionError("Cannot divide by zero")
                 fq_default_poly_scalar_div_fq_default(
                     res.val, self.val, (<fq_default>scalar).val, self.ctx.field.val
                 )
@@ -785,7 +784,7 @@ cdef class fq_default_poly(flint_poly):
 
     def __rtruediv__(self, other):
         if self.is_zero():
-            raise ZeroDivisionError(f"Cannot divide by zero")
+            raise ZeroDivisionError("Cannot divide by zero")
         other = self.ctx.any_as_fq_default_poly(other)
         if other is NotImplemented:
             return other
@@ -800,7 +799,7 @@ cdef class fq_default_poly(flint_poly):
             scalar = self.ctx.field.any_as_fq_default(other)
             if scalar is not NotImplemented:
                 if scalar.is_zero():
-                    raise ZeroDivisionError(f"Cannot divide by zero")
+                    raise ZeroDivisionError("Cannot divide by zero")
                 fq_default_poly_scalar_div_fq_default(
                     res.val, self.val, (<fq_default>scalar).val, self.ctx.field.val
                 )
@@ -813,7 +812,7 @@ cdef class fq_default_poly(flint_poly):
 
         # Do not divide by zero
         if other.is_zero():
-            raise ZeroDivisionError(f"Cannot divide by zero")
+            raise ZeroDivisionError("Cannot divide by zero")
 
         # floor division uses divmod but ignores the rem term
         cdef fq_default_poly rem
@@ -1134,7 +1133,7 @@ cdef class fq_default_poly(flint_poly):
         return res
 
     def pow_trunc(self, slong e, slong n):
-        """
+        r"""
         Returns ``self`` raised to the power ``e`` modulo `x^n`:
         :math:`f^e \mod x^n`/
 
@@ -1239,7 +1238,6 @@ cdef class fq_default_poly(flint_poly):
             >>> f.mul_low(h, 4).is_one()
             True
         """
-        cdef fmpz_t f
         cdef fq_default_poly res
 
         if self.constant_coefficient().is_zero():
@@ -1297,7 +1295,6 @@ cdef class fq_default_poly(flint_poly):
 
         """
         cdef fq_default_poly G, S, T
-        cdef fmpz_t f
 
         other = self.ctx.any_as_fq_default_poly(other)
         if other is NotImplemented:
@@ -1433,7 +1430,7 @@ cdef class fq_default_poly(flint_poly):
         return res
 
     def compose_mod(self, other, modulus):
-        """
+        r"""
         Returns the composition of two polynomials modulo a third.
 
         To be precise about the order of composition, given ``self``, and ``other``

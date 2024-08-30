@@ -14,7 +14,6 @@ from flint.types.acb_poly cimport acb_poly
 
 from flint.flintlib.arb cimport *
 from flint.flintlib.arb_poly cimport *
-cimport cython
 cimport libc.stdlib
 
 cdef arb_poly_coerce_operands(x, y):
@@ -115,7 +114,7 @@ cdef class arb_poly(flint_poly):
 
     def complex_roots(self, **kwargs):
         """
-        Compute the complex roots of the polynomial by converting 
+        Compute the complex roots of the polynomial by converting
         from arb_poly to acb_poly
         """
         return acb_poly(self).roots(**kwargs)

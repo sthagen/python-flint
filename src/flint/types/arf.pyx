@@ -89,7 +89,6 @@ cdef class arf:
         return man, exp
 
     def _repr_str(self):
-        cdef fmpz man, exp
         if arf_is_zero(self.val):
             return "0.0"
         elif arf_is_finite(self.val):
@@ -127,12 +126,18 @@ cdef class arf:
         cdef bint res = 0
         if not typecheck(t, arf):
             t = arf(t)
-        if   op == 2: res = arf_equal((<arf>s).val, (<arf>t).val)
-        elif op == 3: res = not arf_equal((<arf>s).val, (<arf>t).val)
-        elif op == 0: res = arf_cmp((<arf>s).val, (<arf>t).val) < 0
-        elif op == 1: res = arf_cmp((<arf>s).val, (<arf>t).val) <= 0
-        elif op == 4: res = arf_cmp((<arf>s).val, (<arf>t).val) > 0
-        elif op == 5: res = arf_cmp((<arf>s).val, (<arf>t).val) >= 0
+        if op == 2:
+            res = arf_equal((<arf>s).val, (<arf>t).val)
+        elif op == 3:
+            res = not arf_equal((<arf>s).val, (<arf>t).val)
+        elif op == 0:
+            res = arf_cmp((<arf>s).val, (<arf>t).val) < 0
+        elif op == 1:
+            res = arf_cmp((<arf>s).val, (<arf>t).val) <= 0
+        elif op == 4:
+            res = arf_cmp((<arf>s).val, (<arf>t).val) > 0
+        elif op == 5:
+            res = arf_cmp((<arf>s).val, (<arf>t).val) >= 0
         return res
 
     def __pos__(self):

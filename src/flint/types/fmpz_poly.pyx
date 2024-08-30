@@ -8,7 +8,6 @@ from flint.types.fmpz cimport fmpz_set_python
 from flint.types.fmpz cimport any_as_fmpz
 from flint.types.fmpz cimport fmpz
 from flint.types.fmpq cimport any_as_fmpq
-from flint.types.fmpq cimport fmpq
 from flint.types.fmpq_poly cimport fmpq_poly
 from flint.types.fmpq_poly cimport any_as_fmpq_poly
 from flint.types.acb cimport acb
@@ -461,7 +460,7 @@ cdef class fmpz_poly(flint_poly):
         fmpz_poly_factor_init(fac)
         fmpz_poly_factor_squarefree(fac, self.val)
         for 0 <= i < fac.num:
-            deg = fmpz_poly_degree(&fac.p[i]);
+            deg = fmpz_poly_degree(&fac.p[i])
             exp = fac.exp[i]
             croots = _acb_vec_init(deg)
             arb_fmpz_poly_complex_roots(croots, &fac.p[i], flags, getprec())

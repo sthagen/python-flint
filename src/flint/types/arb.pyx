@@ -5,7 +5,7 @@ from flint.flint_base.flint_context cimport getprec
 from flint.flint_base.flint_context cimport thectx
 from flint.flint_base.flint_base cimport flint_scalar
 from flint.utils.typecheck cimport typecheck
-from flint.utils.conversion cimport chars_from_str, str_from_chars, _str_trunc
+from flint.utils.conversion cimport chars_from_str, str_from_chars
 from flint.types.fmpz cimport fmpz_set_pylong
 from flint.types.arf cimport arf
 from flint.types.fmpq cimport fmpq
@@ -43,7 +43,7 @@ cdef arb_from_str(str s):
         raise ValueError("invalid string for arb()")
 
 cdef arb_set_mpmath_mpf(arb_t x, obj):
-    sgn, man, exp, bc = obj
+    sgn, man, exp, _ = obj
 
     if not man:
         if not exp:
@@ -304,7 +304,7 @@ cdef class arb(flint_scalar):
         return x
 
     def lower(self):
-        """
+        r"""
         Lower bound for *self* (towards `-\infty`).
         The output is an *arb* holding an exact floating-point number
         that has been rounded down to the current precision.
@@ -317,7 +317,7 @@ cdef class arb(flint_scalar):
         return x
 
     def upper(self):
-        """
+        r"""
         Upper bound for *self* (towards `+\infty`).
         The output is an *arb* holding an exact floating-point number
         that has been rounded up to the current precision.
@@ -330,7 +330,7 @@ cdef class arb(flint_scalar):
         return x
 
     def mid_rad_10exp(self, long n=0):
-        """
+        r"""
         Returns an *fmpz* triple (*mid*, *rad*, *exp*) where the larger of *mid*
         and *rad* has *n* digits plus a few digits (*n* defaults to the current
         precision), such that *self* is contained in
@@ -479,14 +479,22 @@ cdef class arb(flint_scalar):
         if ttype == FMPZ_UNKNOWN:
             return NotImplemented
         res = 0
-        if   op == 2: res = arb_eq(sval, tval)
-        elif op == 3: res = arb_ne(sval, tval)
-        elif op == 0: res = arb_lt(sval, tval)
-        elif op == 1: res = arb_le(sval, tval)
-        elif op == 4: res = arb_gt(sval, tval)
-        elif op == 5: res = arb_ge(sval, tval)
-        if stype == FMPZ_TMP: arb_clear(sval)
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if op == 2:
+            res = arb_eq(sval, tval)
+        elif op == 3:
+            res = arb_ne(sval, tval)
+        elif op == 0:
+            res = arb_lt(sval, tval)
+        elif op == 1:
+            res = arb_le(sval, tval)
+        elif op == 4:
+            res = arb_gt(sval, tval)
+        elif op == 5:
+            res = arb_ge(sval, tval)
+        if stype == FMPZ_TMP:
+            arb_clear(sval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return res
 
     def __contains__(self, other):
@@ -563,7 +571,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_add((<arb>u).val, (<arb>s).val, tval, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __radd__(s, t):
@@ -574,7 +583,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_add((<arb>u).val, tval, s.val, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __sub__(s, t):
@@ -585,7 +595,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_sub((<arb>u).val, (<arb>s).val, tval, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __rsub__(s, t):
@@ -596,7 +607,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_sub((<arb>u).val, tval, s.val, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __mul__(s, t):
@@ -607,7 +619,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_mul((<arb>u).val, (<arb>s).val, tval, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __rmul__(s, t):
@@ -618,7 +631,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_mul((<arb>u).val, tval, s.val, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __truediv__(s, t):
@@ -629,7 +643,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_div((<arb>u).val, (<arb>s).val, tval, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __rtruediv__(s, t):
@@ -640,7 +655,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_div((<arb>u).val, tval, s.val, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __pow__(s, t, modulus):
@@ -653,7 +669,8 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_pow((<arb>u).val, (<arb>s).val, tval, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def __rpow__(s, t, modulus):
@@ -666,11 +683,12 @@ cdef class arb(flint_scalar):
             return NotImplemented
         u = arb.__new__(arb)
         arb_pow((<arb>u).val, tval, s.val, getprec())
-        if ttype == FMPZ_TMP: arb_clear(tval)
+        if ttype == FMPZ_TMP:
+            arb_clear(tval)
         return u
 
     def floor(s):
-        ur"""
+        r"""
         Floor function `\lfloor s \rfloor`.
 
             >>> print(arb.pi().floor())
@@ -683,7 +701,7 @@ cdef class arb(flint_scalar):
         return u
 
     def ceil(s):
-        ur"""
+        r"""
         Ceiling function `\lceil s \rceil`.
 
             >>> print(arb.pi().ceil())
@@ -803,8 +821,9 @@ cdef class arb(flint_scalar):
         return u
 
     def log_base(s, ulong b):
-        r"""Returns `\log_b(s)`, computed exactly when possible.
-        
+        r"""
+        Returns `\log_b(s)`, computed exactly when possible.
+
             >>> arb(2048).log_base(2)
             11.0000000000000
         """
@@ -986,7 +1005,7 @@ cdef class arb(flint_scalar):
         return u, v
 
     def sec(s):
-        """
+        r"""
         Secant function `\operatorname{sec}(s)`.
 
             >>> from flint import showgood
@@ -998,7 +1017,7 @@ cdef class arb(flint_scalar):
         return u
 
     def csc(s):
-        """
+        r"""
         Cosecant function `\operatorname{csc}(s)`.
 
             >>> from flint import showgood
@@ -1208,7 +1227,7 @@ cdef class arb(flint_scalar):
         return u
 
     def gamma(s):
-        """
+        r"""
         Gamma function `\Gamma(s)`.
 
             >>> from flint import showgood
@@ -1229,7 +1248,7 @@ cdef class arb(flint_scalar):
 
     @staticmethod
     def gamma_fmpq(fmpq s):
-        """
+        r"""
         Computes the gamma function `\Gamma(s)` of a given *fmpq* *s*,
         exploiting the fact that *s* is an exact rational number to
         improve performance.
@@ -1244,7 +1263,7 @@ cdef class arb(flint_scalar):
         return u
 
     def rgamma(s):
-        ur"""
+        r"""
         Reciprocal gamma function `1/\Gamma(s)`, avoiding
         division by zero at the poles of the gamma function.
 
@@ -1263,7 +1282,7 @@ cdef class arb(flint_scalar):
         return u
 
     def lgamma(s):
-        """
+        r"""
         Logarithmic gamma function `\log \Gamma(s)`.
 
             >>> from flint import showgood
@@ -1278,7 +1297,7 @@ cdef class arb(flint_scalar):
         return u
 
     def digamma(s):
-        """
+        r"""
         Digamma function `\psi(s)`.
 
             >>> from flint import showgood
@@ -1326,6 +1345,7 @@ cdef class arb(flint_scalar):
         """
         Computes the rising factorial `(s)_n` where *n* is an unsigned
         integer, along with the first derivative with respect to `(s)_n`.
+
         The current implementation does not use the gamma function,
         so *n* should be moderate.
 
@@ -1340,7 +1360,7 @@ cdef class arb(flint_scalar):
         return u, v
 
     def zeta(s, a=None):
-        """
+        r"""
         Riemann zeta function `\zeta(s)` or the Hurwitz
         zeta function `\zeta(s,a)` if a second parameter is passed.
 
@@ -1488,7 +1508,7 @@ cdef class arb(flint_scalar):
         return u
 
     def bin(s, ulong k):
-        """
+        r"""
         Binomial coefficient `{s \choose k}`. Currently *k* is limited
         to an integer; this restriction will be removed in the future
         by using the gamma function.
@@ -1505,7 +1525,7 @@ cdef class arb(flint_scalar):
 
     @staticmethod
     def bin_uiui(ulong n, ulong k):
-        """
+        r"""
         Binomial coefficient `{n \choose k}`.
 
             >>> print(arb.bin_uiui(10, 5))
@@ -1533,7 +1553,7 @@ cdef class arb(flint_scalar):
         return u
 
     def polylog(self, s):
-        """
+        r"""
         Polylogarithm `\operatorname{Li}_s(z)` where
         the argument *z* is given by *self* and the order *s* is given
         as an extra parameter.
@@ -2151,7 +2171,7 @@ cdef class arb(flint_scalar):
             >>> showgood(lambda: arb(5).hypgeom([1,2,3],[5,4.5,6],regularized=True), dps=25)
             3.886189282817193519132054e-5
         """
-        cdef long i, p, q, prec
+        cdef long i, p, q
         cdef arb_ptr aa, bb
         a = [any_as_arb(t) for t in a]
         b = [any_as_arb(t) for t in b]
@@ -2250,18 +2270,23 @@ cdef class arb(flint_scalar):
         c = any_as_arb(c)
         u = arb.__new__(arb)
         flags = 0
-        if regularized: flags |= 1
-        if ab: flags |= 2
-        if ac: flags |= 4
-        if bc: flags |= 8
-        if abc: flags |= 16
+        if regularized:
+            flags |= 1
+        if ab:
+            flags |= 2
+        if ac:
+            flags |= 4
+        if bc:
+            flags |= 8
+        if abc:
+            flags |= 16
         arb_hypgeom_2f1((<arb>u).val, (<arb>a).val, (<arb>b).val, (<arb>c).val,
             (<arb>self).val, flags, getprec())
         return u
 
     @staticmethod
     def pi():
-        """
+        r"""
         Returns the constant `\pi` as an *arb*.
 
             >>> from flint import showgood
@@ -2274,7 +2299,7 @@ cdef class arb(flint_scalar):
 
     @staticmethod
     def const_sqrt_pi():
-        """
+        r"""
         The constant `\sqrt{\pi}`.
 
             >>> from flint import showgood
@@ -2287,7 +2312,7 @@ cdef class arb(flint_scalar):
 
     @staticmethod
     def const_log2():
-        """
+        r"""
         The constant `\log(2)`.
 
             >>> from flint import showgood
@@ -2300,7 +2325,7 @@ cdef class arb(flint_scalar):
 
     @staticmethod
     def const_log10():
-        """
+        r"""
         The constant `\log(10)`.
 
             >>> from flint import showgood
@@ -2313,7 +2338,7 @@ cdef class arb(flint_scalar):
 
     @staticmethod
     def const_euler():
-        """
+        r"""
         Euler's constant `\gamma`.
 
             >>> from flint import showgood
@@ -2420,8 +2445,9 @@ cdef class arb(flint_scalar):
         return arb_rel_one_accuracy_bits(self.val)
 
     def bits(self):
-        r"""Returns number of bits needed to represent absolute value of mantissa of the midpoint; returns 0 if midpoint is special value.
-        
+        r"""
+        Returns number of bits needed to represent absolute value of mantissa of the midpoint; returns 0 if midpoint is special value.
+
             >>> arb("2047/2048").bits()
             11
         """

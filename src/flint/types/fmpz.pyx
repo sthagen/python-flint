@@ -69,7 +69,6 @@ cdef class fmpz(flint_scalar):
         fmpz_clear(self.val)
 
     def __init__(self, *args):
-        cdef long x
         if not args:
             return
         elif len(args) != 1:
@@ -123,19 +122,24 @@ cdef class fmpz(flint_scalar):
 
     def __richcmp__(s, t, int op):
         cdef bint res = 0
-        cdef long tl
         cdef fmpz_struct tval[1]
         cdef fmpz_struct * sval
         cdef int ttype
         sval = &((<fmpz>s).val[0])
         ttype = fmpz_set_any_ref(tval, t)
         if ttype != FMPZ_UNKNOWN:
-            if   op == 2: res = fmpz_equal(sval, tval)
-            elif op == 3: res = not fmpz_equal(sval, tval)
-            elif op == 0: res = fmpz_cmp(sval, tval) < 0
-            elif op == 1: res = fmpz_cmp(sval, tval) <= 0
-            elif op == 4: res = fmpz_cmp(sval, tval) > 0
-            elif op == 5: res = fmpz_cmp(sval, tval) >= 0
+            if op == 2:
+                res = fmpz_equal(sval, tval)
+            elif op == 3:
+                res = not fmpz_equal(sval, tval)
+            elif op == 0:
+                res = fmpz_cmp(sval, tval) < 0
+            elif op == 1:
+                res = fmpz_cmp(sval, tval) <= 0
+            elif op == 4:
+                res = fmpz_cmp(sval, tval) > 0
+            elif op == 5:
+                res = fmpz_cmp(sval, tval) >= 0
         if ttype == FMPZ_TMP:
             fmpz_clear(tval)
         if ttype == FMPZ_UNKNOWN:
@@ -192,7 +196,8 @@ cdef class fmpz(flint_scalar):
         if ttype != FMPZ_UNKNOWN:
             u = fmpz.__new__(fmpz)
             fmpz_add((<fmpz>u).val, (<fmpz>s).val, tval)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __radd__(s, t):
@@ -203,7 +208,8 @@ cdef class fmpz(flint_scalar):
         if ttype != FMPZ_UNKNOWN:
             u = fmpz.__new__(fmpz)
             fmpz_add((<fmpz>u).val, tval, (<fmpz>s).val)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __sub__(s, t):
@@ -214,7 +220,8 @@ cdef class fmpz(flint_scalar):
         if ttype != FMPZ_UNKNOWN:
             u = fmpz.__new__(fmpz)
             fmpz_sub((<fmpz>u).val, (<fmpz>s).val, tval)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __rsub__(s, t):
@@ -225,7 +232,8 @@ cdef class fmpz(flint_scalar):
         if ttype != FMPZ_UNKNOWN:
             u = fmpz.__new__(fmpz)
             fmpz_sub((<fmpz>u).val, tval, (<fmpz>s).val)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __mul__(s, t):
@@ -236,7 +244,8 @@ cdef class fmpz(flint_scalar):
         if ttype != FMPZ_UNKNOWN:
             u = fmpz.__new__(fmpz)
             fmpz_mul((<fmpz>u).val, (<fmpz>s).val, tval)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __rmul__(s, t):
@@ -247,7 +256,8 @@ cdef class fmpz(flint_scalar):
         if ttype != FMPZ_UNKNOWN:
             u = fmpz.__new__(fmpz)
             fmpz_mul((<fmpz>u).val, tval, (<fmpz>s).val)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __truediv__(s, t):
@@ -270,7 +280,8 @@ cdef class fmpz(flint_scalar):
         exact = fmpz_is_zero(rval)
         fmpz_clear(rval)
 
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
 
         if exact:
             return q
@@ -295,7 +306,8 @@ cdef class fmpz(flint_scalar):
                 raise ZeroDivisionError("fmpz division by zero")
             u = fmpz.__new__(fmpz)
             fmpz_fdiv_q((<fmpz>u).val, (<fmpz>s).val, tval)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __rfloordiv__(s, t):
@@ -310,7 +322,8 @@ cdef class fmpz(flint_scalar):
                 raise ZeroDivisionError("fmpz division by zero")
             u = fmpz.__new__(fmpz)
             fmpz_fdiv_q((<fmpz>u).val, tval, (<fmpz>s).val)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __mod__(s, t):
@@ -325,7 +338,8 @@ cdef class fmpz(flint_scalar):
                 raise ZeroDivisionError("fmpz division by zero")
             u = fmpz.__new__(fmpz)
             fmpz_fdiv_r((<fmpz>u).val, (<fmpz>s).val, tval)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __rmod__(s, t):
@@ -340,7 +354,8 @@ cdef class fmpz(flint_scalar):
                 raise ZeroDivisionError("fmpz division by zero")
             u = fmpz.__new__(fmpz)
             fmpz_fdiv_r((<fmpz>u).val, tval, (<fmpz>s).val)
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __divmod__(s, t):
@@ -357,7 +372,8 @@ cdef class fmpz(flint_scalar):
             u2 = fmpz.__new__(fmpz)
             fmpz_fdiv_qr((<fmpz>u1).val, (<fmpz>u2).val, (<fmpz>s).val, tval)
             u = u1, u2
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __rdivmod__(s, t):
@@ -374,7 +390,8 @@ cdef class fmpz(flint_scalar):
             u2 = fmpz.__new__(fmpz)
             fmpz_fdiv_qr((<fmpz>u1).val, (<fmpz>u2).val, tval, (<fmpz>s).val)
             u = u1, u2
-        if ttype == FMPZ_TMP: fmpz_clear(tval)
+        if ttype == FMPZ_TMP:
+            fmpz_clear(tval)
         return u
 
     def __pow__(s, t, m):
@@ -427,9 +444,12 @@ cdef class fmpz(flint_scalar):
 
                 return u
         finally:
-            if stype == FMPZ_TMP: fmpz_clear(sval)
-            if ttype == FMPZ_TMP: fmpz_clear(tval)
-            if mtype == FMPZ_TMP: fmpz_clear(mval)
+            if stype == FMPZ_TMP:
+                fmpz_clear(sval)
+            if ttype == FMPZ_TMP:
+                fmpz_clear(tval)
+            if mtype == FMPZ_TMP:
+                fmpz_clear(mval)
 
     def __rpow__(s, t, m):
         t = any_as_fmpz(t)
@@ -684,9 +704,9 @@ cdef class fmpz(flint_scalar):
 
     def is_perfect_power(self):
         r"""
-        Return True if this integer is of the form `r^k` with `k>1`, False otherwise.
+        Return ``True`` if this integer is of the form `r^k` with `k>1`, False otherwise.
         `0, 1, -1` are considered perfect powers.
- 
+
             >>> fmpz(81).is_perfect_power()
             True
             >>> fmpz(1234).is_perfect_power()
@@ -997,7 +1017,6 @@ cdef class fmpz(flint_scalar):
         ttype = fmpz_set_any_ref(tval, other)
         if ttype == FMPZ_UNKNOWN:
             raise TypeError("input must be an integer")
-        u = fmpz.__new__(fmpz)
         v = fmpz_jacobi(self.val, tval)
         if ttype == FMPZ_TMP:
             fmpz_clear(tval)

@@ -22,7 +22,7 @@ from flint.utils.flint_exceptions import DomainError
 
 cdef class fmpz_mod_poly_ctx:
     r"""
-    Context object for creating :class:`~.fmpz_mod_poly` initalised
+    Context object for creating :class:`~.fmpz_mod_poly` initialised
     with a modulus :math:`N`.
 
         >>> fmpz_mod_poly_ctx(2**127 - 1)
@@ -180,7 +180,7 @@ cdef class fmpz_mod_poly_ctx:
                 val_fmpz = any_as_fmpz(val[i])
                 if val_fmpz is NotImplemented:
                     fmpz_clear(x)
-                    raise TypeError(f"unsupported coefficient in list")
+                    raise TypeError("unsupported coefficient in list")
                 fmpz_mod_poly_set_coeff_fmpz(
                     poly, i, (<fmpz>(val_fmpz)).val, self.mod.val
                 )
@@ -188,7 +188,7 @@ cdef class fmpz_mod_poly_ctx:
         return 0
 
     cdef set_any_as_fmpz_mod_poly(self, fmpz_mod_poly_t poly, obj):
-        # Set val from fmpz_mod_poly 
+        # Set val from fmpz_mod_poly
         if typecheck(obj, fmpz_mod_poly):
             if self != (<fmpz_mod_poly>obj).ctx:
                 raise ValueError("moduli must match")
@@ -438,7 +438,7 @@ cdef class fmpz_mod_poly(flint_poly):
             return NotImplemented
 
         if other == 0:
-            raise ZeroDivisionError(f"Cannot divide by zero")
+            raise ZeroDivisionError("Cannot divide by zero")
         elif not other.is_unit():
             raise DomainError(f"Cannot divide by {other} modulo {self.ctx.modulus()}")
 
@@ -467,7 +467,7 @@ cdef class fmpz_mod_poly(flint_poly):
     def exact_division(self, right):
         """
         Attempt to compute the exact quotient of self with other
-        Raises a value error if divison without remainer is not
+        Raises a value error if division without remainder is not
         possible.
 
             >>> R = fmpz_mod_poly_ctx(163)
@@ -485,7 +485,7 @@ cdef class fmpz_mod_poly(flint_poly):
             raise TypeError(f"Cannot convert {right} to `fmpz_mod_poly` type.")
 
         if right == 0:
-            raise ZeroDivisionError(f"Cannot divide by zero")
+            raise ZeroDivisionError("Cannot divide by zero")
 
         res = self.ctx.new_ctype_poly()
         check = fmpz_mod_poly_divides(
@@ -522,7 +522,7 @@ cdef class fmpz_mod_poly(flint_poly):
         lc = right.leading_coefficient()
 
         if lc.is_zero():
-            raise ZeroDivisionError(f"Cannot divide by zero")
+            raise ZeroDivisionError("Cannot divide by zero")
         elif not lc.is_unit():
             raise DomainError(f"The leading term of {right} must be a unit modulo N")
 
@@ -642,7 +642,7 @@ cdef class fmpz_mod_poly(flint_poly):
                 return NotImplemented
 
         if right == 0:
-            raise ZeroDivisionError(f"Cannot reduce modulo zero")
+            raise ZeroDivisionError("Cannot reduce modulo zero")
 
         res = (<fmpz_mod_poly>left).ctx.new_ctype_poly()
         fmpz_init(f)
@@ -807,7 +807,7 @@ cdef class fmpz_mod_poly(flint_poly):
         return res
 
     def compose_mod(self, other, modulus):
-        """
+        r"""
         Returns the composition of two polynomials modulo a third.
 
         To be precise about the order of composition, given ``self``, and ``other``
@@ -1047,7 +1047,7 @@ cdef class fmpz_mod_poly(flint_poly):
         cdef fmpz_mod_poly res
         cdef fmpz_t f
 
-        res =  self.ctx.new_ctype_poly()
+        res = self.ctx.new_ctype_poly()
         if not check:
             fmpz_mod_poly_make_monic(
                 res.val, self.val, self.ctx.mod.val
@@ -1059,7 +1059,7 @@ cdef class fmpz_mod_poly(flint_poly):
             )
             if not fmpz_is_one(f):
                 fmpz_clear(f)
-                raise ValueError(f"Leading coefficient is not invertible")
+                raise ValueError("Leading coefficient is not invertible")
         return res
 
     def is_irreducible(self):
@@ -1142,7 +1142,7 @@ cdef class fmpz_mod_poly(flint_poly):
         return res
 
     def pow_mod(self, e, modulus, mod_rev_inv=None):
-        """
+        r"""
         Returns ``self`` raised to the power ``e`` modulo ``modulus``:
         :math:`f^e \mod g`/
 
@@ -1655,7 +1655,7 @@ cdef class fmpz_mod_poly(flint_poly):
         return res
 
     def pow_trunc(self, slong e, slong n):
-        """
+        r"""
         Returns ``self`` raised to the power ``e`` modulo `x^n`:
         :math:`f^e \mod x^n`/
 
@@ -1819,7 +1819,7 @@ cdef class fmpz_mod_poly(flint_poly):
             return (constant, [])
 
         fmpz_mod_poly_factor_init(fac, self.ctx.mod.val)
-        if algorithm == None:
+        if algorithm is None:
             fmpz_mod_poly_factor(fac, self.val, self.ctx.mod.val)
         elif algorithm == "cantor_zassenhaus":
             fmpz_mod_poly_factor_cantor_zassenhaus(fac, self.val, self.ctx.mod.val)
@@ -1885,14 +1885,14 @@ cdef class fmpz_mod_poly(flint_poly):
         return res
 
     def real_roots(self):
-        """
+        r"""
         This method is not implemented for polynomials in
         :math:`(\mathbb{Z}/N\mathbb{Z})[X]`
         """
         raise DomainError("Cannot compute real roots for polynomials over integers modulo N")
 
     def complex_roots(self):
-        """
+        r"""
         This method is not implemented for polynomials in
         :math:`(\mathbb{Z}/N\mathbb{Z})[X]`
         """
